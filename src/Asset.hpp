@@ -34,6 +34,17 @@ Copyright_License {
 // asset/registration data
 extern TCHAR asset_number[];
 
+/*
+ * Does this device have a cursor keys?  These may be used to navigate
+ * in modal dialogs.  Without cursor keys, focused controls do not
+ * need to be highlighted.
+ * Due to the addition of a remote box option, this can no longer be
+ * computed at compile time.
+ * TODO: This may be defined as static, but i'm worried about some of the
+ * initialization happening before the profile is loaded
+ */
+bool HasCursorKeys();
+
 /**
  * Finds the unique ID of this PDA
  */
@@ -274,27 +285,6 @@ static inline bool
 HasKeyboard()
 {
   return !IsEmbedded();
-}
-
-/**
- * Does this device have a cursor keys?  These may be used to navigate
- * in modal dialogs.  Without cursor keys, focused controls do not
- * need to be highlighted.
- */
-#ifndef ANDROID
-constexpr
-#endif
-static inline bool
-HasCursorKeys()
-{
-  /* we assume that all Windows (CE) devices have cursor keys; some do
-     not, but that's hard to detect */
-
-#ifdef ANDROID
-  return has_cursor_keys;
-#else
-  return !IsKobo();
-#endif
 }
 
 /**

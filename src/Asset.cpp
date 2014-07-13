@@ -36,6 +36,10 @@ Copyright_License {
 
 #include <string.h>
 
+// added for remote box checking - see if both needed later
+#include "Interface.hpp"
+#include "UISettings.hpp"
+
 // Registration Data
 TCHAR asset_number[100] = _T(""); //4G17DW31L0HY");
 
@@ -180,4 +184,17 @@ ReadAssetNumber()
     _tcscpy(asset_number, _T("AAA"));
     LogFormat(_T("Asset ID: %s (fallback)"), asset_number);
   }
+}
+
+bool
+HasCursorKeys()
+{
+  /* we assume that all Windows (CE) devices have cursor keys; some do
+     not, but that's hard to detect */
+
+  /* TODO: check Configuration.keyboard on Android */
+
+  const UISettings &settings = CommonInterface::GetUISettings();
+
+  return settings.dialog.using_remote || (!IsKobo() && !IsAndroid());
 }
