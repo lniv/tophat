@@ -86,7 +86,20 @@ struct EventBuilder {
 
       // All modes are valid at this point
       int mode_id = config.MakeMode(token);
-      assert(mode_id >= 0);
+      /* I think this is better than an assert since this can happen due
+       * to an overtly large xci file - i.e. a user rather than a programming
+       * error. Recovering in this case is hard since there is no way to do so
+       * inside tophat - one must edit the xci file externally.
+       * in general, i think xci related errors should not lead to crashes, if
+       * possible.
+       * Of course, the results of a missing mode could be bad later, but i
+       * still think it's better to at least allow program execution.
+       */
+      if (mode_id < 0) {
+        LogFormat(_T("Cannot commit mode: %s at block ending at line %u"),
+                  token, line);
+        return;
+      }
 
       // Make label event
       // TODO code: Consider Reuse existing entries...
