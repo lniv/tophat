@@ -60,6 +60,7 @@ doc/html/advanced/input/ALL		http://xcsoar.sourceforge.net/advanced/input/
 #include "InfoBoxes/InfoBoxManager.hpp"
 #include "Pan.hpp"
 
+
 #ifdef KOBO
 #include "Screen/Key.h"
 #endif
@@ -84,6 +85,8 @@ namespace InputEvents
 
   static unsigned MenuTimeOut = 0;
 
+  static int active_label = 0;
+
   gcc_pure
   static Mode getModeID();
 
@@ -103,6 +106,44 @@ namespace InputEvents
 };
 
 static InputConfig input_config;
+
+// FIXME - i really should be looking at whether i have a location defined - since i don't want to move between defined but invisible items!
+// actually, i think by definition this is the case - the location is just the index of the menu array - i had the feeling i saw an xci file with items that had no location, but either i was wrong or they're silently ignored - since the add funtion simply does that! could add a print statement to it and see?
+void InputEvents::findNextActiveLabel(int direction)
+{
+    assert(direction == 1 || direction == -1); // prevent abuse - a better name might help, definitely kludge
+    Menu *const menu = &input_config.menus[getModeID()];
+    Menu *const overlay_menu = &input_config.menus[overlay_mode];
+    int max_label = (*menu).MAX_ITEMS ; //?? but it's not menu.MAX_ITEMS , or at least i think so
+
+    MenuItem &item_old = overlay_menu != NULL && (*overlay_menu)[active_label].IsDefined()
+        ? (*overlay_menu).SetMenuItem(active_label)
+        : (*menu).SetMenuItem(active_label);
+    if (item_old.event)
+      item_old.down = false;
+
+    int old_active_label = active_label;
+    bool looped = false;
+    active_label = active_label + direction;
+    for (; (active_label < old_active_label && direction > 0) || (active_label > old_active_label && direction < 0) || !looped ; active_label = active_label + direction) {
+        if (active_label > max_label) {
+            active_label = 0;
+            looped = true;
+        }
+        else if (active_label < 0) {
+            active_label = max_label;
+            looped = true;
+        }
+        MenuItem &item = overlay_menu != NULL && (*overlay_menu)[active_label].IsDefined()
+            ? (*overlay_menu).SetMenuItem(active_label)
+            : (*menu).SetMenuItem(active_label);
+        if (item.event) {
+          item.down = true;
+            break;
+        }
+    }
+    drawButtons(getModeID(), true);
+}
 
 // Read the data files
 void
@@ -133,6 +174,8 @@ InputEvents::setMode(Mode mode)
   UpdateOverlayMode();
 
   drawButtons(getModeID(), true);
+  active_label = 0;
+  findNextActiveLabel(1);
 }
 
 void
@@ -216,6 +259,12 @@ InputEvents::getModeID()
   return current_mode;
 }
 
+
+gcc_pure
+static int
+FindMenuItemByEvent(InputEvents::Mode mode, InputEvents::Mode overlay_mode,
+                    unsigned event_id);
+
 void
 InputEvents::UpdateOverlayMode()
 {
@@ -237,6 +286,37 @@ InputEvents::UpdateOverlayMode()
       overlay_mode = MODE_DEFAULT;
   } else
     overlay_mode = MODE_DEFAULT;
+  // erase memory of last button held down - otherwise we have remains from old showing of the labels
+  Menu *const menu = &input_config.menus[getModeID()];
+  Menu *const overlay_menu = &input_config.menus[overlay_mode];
+  for (int i = 0 ; i < (*menu).MAX_ITEMS ; i++) {
+      MenuItem &item = (*overlay_menu)[i].IsDefined()
+          ? (*overlay_menu).SetMenuItem(i)
+          : (*menu).SetMenuItem(i);
+      if (item.event)
+          item.down = false;
+  }
+}
+
+
+// Move active button / label up or down
+void
+InputEvents::eventChangeActiveLabel(const TCHAR *misc)
+{
+    if (StringIsEqual(misc, _T("up")))
+        findNextActiveLabel(-1);
+    else if (StringIsEqual(misc, _T("down")))
+        findNextActiveLabel(1);
+}
+
+void InputEvents::eventDoActiveLabel(gcc_unused const TCHAR *misc)
+{
+    const Menu *const menu = &input_config.menus[getModeID()];
+    const Menu *const overlay_menu = &input_config.menus[overlay_mode];
+    const MenuItem &item = overlay_menu != NULL && (*overlay_menu)[active_label].IsDefined()
+      ? (*overlay_menu)[active_label]
+      : (*menu)[active_label];
+    ProcessEvent(item.event);
 }
 
 // -----------------------------------------------------------------------
