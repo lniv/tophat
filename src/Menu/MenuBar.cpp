@@ -27,6 +27,8 @@ Copyright_License {
 #include "Input/InputEvents.hpp"
 #include "UIGlobals.hpp"
 #include "Look/DialogLook.hpp"
+#include "Interface.hpp"
+#include "UISettings.hpp"
 
 #include <assert.h>
 
@@ -200,6 +202,9 @@ MenuBar::MenuBar(ContainerWindow &parent)
   style.multiline();
   const ButtonLook &look = UIGlobals::GetDialogLook().button;
 
+  const UISettings &settings = CommonInterface::GetUISettings();
+  mark_selected_button = settings.dialog.using_remote;
+
   for (unsigned i = 0; i < MAX_BUTTONS; ++i) {
     PixelRect button_rc = GetButtonPosition(i, rc);
     buttons[i] = new Button(parent, look, _T(""), button_rc, style);
@@ -221,7 +226,9 @@ MenuBar::ShowButton(unsigned i, bool enabled, const TCHAR *text,
 
   Button &button = *buttons[i];
 
-  buttons[i]->SetDown(down);
+  if (mark_selected_button) {
+    buttons[i]->SetDown(down);
+  }
   button.SetText(text);
   button.SetEnabled(enabled && event > 0);
   button.SetEvent(event);

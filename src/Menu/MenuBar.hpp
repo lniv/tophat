@@ -38,6 +38,7 @@ public:
   enum {
     MAX_BUTTONS = 32,
   };
+  bool mark_selected_button;
 
 protected:
   class Button : public WndSymbolButton {
