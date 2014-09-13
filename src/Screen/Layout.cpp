@@ -23,6 +23,10 @@ Copyright_License {
 
 #include "Screen/Layout.hpp"
 #include "Hardware/DisplayDPI.hpp"
+#include "Interface.hpp"
+#include "UISettings.hpp"
+// FIXME testing only - remove or make debug conditional later
+#include "LogFile.hpp"
 
 #include <algorithm>
 
@@ -44,10 +48,12 @@ Layout::GetXDPI()
   return Display::GetXDPI();
 }
 
+
 void
 Layout::Initialize(PixelSize new_size)
 {
   const unsigned width = new_size.cx, height = new_size.cy;
+  const UISettings &settings = CommonInterface::GetUISettings();
 
   landscape = width > height;
   const bool square = width == height;
@@ -79,6 +85,9 @@ Layout::Initialize(PixelSize new_size)
   } else {
     maximum_control_height = minimum_control_height;
   }
-
-  hit_radius = x_dpi / (UseTouchScreenLayout() ? 3 : 12);
+  hit_radius = x_dpi / ((UseTouchScreenLayout() || settings.dialog.using_remote) ? 3 : 12);
+  /* leaving debug messages in as a reminder that this gets run twice on startup
+   * and it perhaps might be worthwhile removing in future - FIXME
+   */
+  LogFormat("Layout::Initialize: hit radius = %d pixels, using_remote = %d", hit_radius, settings.dialog.using_remote);
 }
