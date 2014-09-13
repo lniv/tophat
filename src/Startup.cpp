@@ -225,6 +225,38 @@ Startup()
             OpenGL::render_buffer_stencil);
 #endif
 
+
+  /* note that layout is actually run twice - once when the window is created,
+   * and once when it is initialized
+   * might be worth checking into and perhaps eliminating, but since it only
+   * runs at startup, it's not a big deal.
+   */
+  CommonInterface::SetSystemSettings().SetDefaults();
+  CommonInterface::SetComputerSettings().SetDefaults();
+  CommonInterface::SetUISettings().SetDefaults();
+  CommonInterface::SetUIState().Clear();
+
+  const auto &computer_settings = CommonInterface::GetComputerSettings();
+  const auto &ui_settings = CommonInterface::GetUISettings();
+  auto &live_blackboard = CommonInterface::GetLiveBlackboard();
+
+  /* I must LoadProfile after main_window->Initialize; otherwise it seems fine
+   * in linux, but crashes in android/nook
+  if (!LoadProfile())
+    return false;
+    */
+
+  main_window->Initialise();
+
+  if (!LoadProfile())
+      return false;
+
+  /* Forcing initializing layout after profile loading by initializing the main
+   * window again. (so Layou is run three times - sigh)
+   * Seems very kludgy / stupid, but it does avoid creating more functions / code
+   * and it's really only run once afai see, so apart from a minimal startup delay,
+   *  it does no harm that i see.
+   */
   main_window->Initialise();
 
 #ifdef SIMULATOR_AVAILABLE
@@ -245,18 +277,6 @@ Startup()
     }
   }
 #endif
-
-  CommonInterface::SetSystemSettings().SetDefaults();
-  CommonInterface::SetComputerSettings().SetDefaults();
-  CommonInterface::SetUISettings().SetDefaults();
-  CommonInterface::SetUIState().Clear();
-
-  const auto &computer_settings = CommonInterface::GetComputerSettings();
-  const auto &ui_settings = CommonInterface::GetUISettings();
-  auto &live_blackboard = CommonInterface::GetLiveBlackboard();
-
-  if (!LoadProfile())
-    return false;
 
   operation.SetText(_("Initialising"));
 

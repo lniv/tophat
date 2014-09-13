@@ -53,6 +53,7 @@ enum ControlIndex {
   StatusFile,
   MenuTimeout,
   TextInput,
+  RemoteBox,
   HapticFeedback
 };
 
@@ -211,6 +212,12 @@ InterfaceConfigPanel::Prepare(ContainerWindow &parent, const PixelRect &rc)
      (mouse or touch screen), hide the option on Altair */
   SetRowVisible(TextInput, HasPointer());
 
+
+  AddBoolean(_("Using Remote"), _("If true, highlights selected event item and sets a larger "
+               "radius for searching, as appropriate when using a remote rather than touch screen."),
+                settings.dialog.using_remote);
+  SetExpertRow(RemoteBox);
+
 #ifdef HAVE_VIBRATOR
   static constexpr StaticEnumChoice haptic_feedback_list[] = {
     { (unsigned)UISettings::HapticFeedback::DEFAULT, N_("OS settings") },
@@ -291,6 +298,9 @@ InterfaceConfigPanel::Save(bool &_changed)
 
   if (HasPointer())
     changed |= SaveValueEnum(TextInput, ProfileKeys::AppTextInputStyle, settings.dialog.text_input_style);
+
+  require_restart |= changed |= SaveValue(RemoteBox, ProfileKeys::RemoteBoxAvailable,
+                  settings.dialog.using_remote);
 
 #ifdef HAVE_VIBRATOR
   changed |= SaveValueEnum(HapticFeedback, ProfileKeys::HapticFeedback, settings.haptic_feedback);

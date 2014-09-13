@@ -70,6 +70,8 @@ struct DialogSettings {
    */
   bool expert;
 
+  bool using_remote;
+
   void SetDefaults();
 };
 

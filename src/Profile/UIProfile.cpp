@@ -124,6 +124,8 @@ Profile::Load(UISettings &settings)
 //  hard code to default value
 //  GetEnum(ProfileKeys::AppStatusMessageAlignment, settings.popup_message_position);
 
+  Get(ProfileKeys::RemoteBoxAvailable, settings.dialog.using_remote);
+
   GetEnum(ProfileKeys::HapticFeedback, settings.haptic_feedback);
 
   GetEnum(ProfileKeys::LatLonUnits, settings.coordinate_format);

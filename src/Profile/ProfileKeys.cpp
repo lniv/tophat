@@ -277,4 +277,6 @@ const char FilePickAndDownloadAreaFilter[] = "FilePickAndDownloadAreaFilter";
 const char FilePickAndDownloadSubAreaFilter[] = "FilePickAndDownloadSubAreaFilter";
 const char ScreensButtonLocation[] = "ScreensButtonLocation";
 
+const char RemoteBoxAvailable[] = "RemoteBoxAvailable";
+
 }
