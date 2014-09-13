@@ -36,6 +36,7 @@ Copyright_License {
 #include "Pan.hpp"
 #include "PageActions.hpp"
 #include "Util/Clamp.hpp"
+#include "Screen/Layout.hpp"
 
 // eventAutoZoom - Turn on|off|toggle AutoZoom
 // misc:
@@ -171,8 +172,14 @@ InputEvents::sub_PanCursor(int dx, int dy)
     return;
 
   RasterPoint pt = projection.GetScreenOrigin();
+  /*
   pt.x -= dx * int(projection.GetScreenWidth()) / 4;
   pt.y -= dy * int(projection.GetScreenHeight()) / 4;
+  */
+  // use some multipilcation of the hit / search radius - left at 1 one for now
+  pt.x -= dx * int(Layout::GetHitRadius());
+  pt.y -= dy * int(Layout::GetHitRadius());
+
   map_window->SetLocation(projection.ScreenToGeo(pt));
 
   map_window->QuickRedraw();
