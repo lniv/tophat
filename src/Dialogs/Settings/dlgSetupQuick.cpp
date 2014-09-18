@@ -427,18 +427,34 @@ SetupQuick::Prepare(ContainerWindow &parent, const PixelRect &rc)
                                rc_pilot_button,
                                button_style, *this, PILOT);
 
-  ok = new WndButton(GetClientAreaWindow(), button_look, _("Close"),
-                     rc_ok,
-                     button_style, *this, OK);
+  if (Layout::landscape) {
+    ok = new WndButton(GetClientAreaWindow(), button_look, _("Close"),
+                       rc_ok,
+                       button_style, *this, OK);
 
-  screens_button = new WndButton(GetClientAreaWindow(), button_look,
-                                 _("Screen"),
-                                 rc_screens_button,
-                                 button_style, *this, SCREENS);
+    screens_button = new WndButton(GetClientAreaWindow(), button_look,
+                                   _("Screen"),
+                                   rc_screens_button,
+                                   button_style, *this, SCREENS);
 
-  advanced = new WndButton(GetClientAreaWindow(), button_look, _("Advanced"),
-                           rc_advanced,
-                           button_style, *this, ADVANCED);
+    advanced = new WndButton(GetClientAreaWindow(), button_look, _("Advanced"),
+                             rc_advanced,
+                             button_style, *this, ADVANCED);
+  }
+  else {
+    screens_button = new WndButton(GetClientAreaWindow(), button_look,
+                                   _("Screen"),
+                                   rc_screens_button,
+                                   button_style, *this, SCREENS);
+
+    advanced = new WndButton(GetClientAreaWindow(), button_look, _("Advanced"),
+                             rc_advanced,
+                             button_style, *this, ADVANCED);
+
+    ok = new WndButton(GetClientAreaWindow(), button_look, _("Close"),
+                           rc_ok,
+                           button_style, *this, OK);
+  }
 
   RefreshForm();
 }
