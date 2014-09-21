@@ -28,6 +28,7 @@ Copyright_License {
 #include "Event/Globals.hpp"
 #include "OS/Clock.hpp"
 #include "Compiler.h"
+#include "Screen/Key.h"
 
 /**
  * @see http://developer.android.com/reference/android/view/KeyEvent.html
@@ -52,6 +53,14 @@ TranslateKeyCode(unsigned key_code)
     /* return upper-case character, because InputEvents::findKey()
        calls ToUpperASCII() */
     return 'A' + (key_code - KEYCODE_A);
+
+  /* On the nook the code for escape is zero, which usually would cause an
+   * exception, so it needs special handling.
+   * It does seem a bit odd, and maybe should be handled elsewhere.
+   */
+  if (key_code == 0) {
+    return KEY_ESCAPE;
+  }
 
   return key_code;
 }
