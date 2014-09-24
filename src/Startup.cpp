@@ -252,7 +252,7 @@ Startup()
       return false;
 
   /* Forcing initializing layout after profile loading by initializing the main
-   * window again. (so Layou is run three times - sigh)
+   * window again. (so Layout is run three times - sigh)
    * Seems very kludgy / stupid, but it does avoid creating more functions / code
    * and it's really only run once afai see, so apart from a minimal startup delay,
    *  it does no harm that i see.
