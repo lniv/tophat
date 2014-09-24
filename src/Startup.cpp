@@ -305,6 +305,9 @@ Startup()
     is_dithered = Nook::EnterFastMode();
     Nook::SetCharge500();
     Nook::InitInternalUsb();
+    if (ui_settings.dialog.using_remote) {
+      Nook::InitUsb();
+    }
   }
 #endif
 
